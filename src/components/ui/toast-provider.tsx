@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { Box } from "@mui/material";
 import ToastComponent, { Toast } from "./toast";
 
 interface ToastContextType {
@@ -85,11 +86,21 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
     <ToastContext.Provider value={value}>
       {children}
       {/* Toast Container */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
+      <Box
+        sx={{
+          position: "fixed",
+          top: 16,
+          right: 16,
+          zIndex: 50,
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
+        }}
+      >
         {toasts.map((toast) => (
           <ToastComponent key={toast.id} toast={toast} onRemove={removeToast} />
         ))}
-      </div>
+      </Box>
     </ToastContext.Provider>
   );
 };

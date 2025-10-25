@@ -78,10 +78,28 @@ function AuthPageContent() {
             justifyContent: "center",
           }}
         >
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading...</p>
-          </div>
+          <Box sx={{ textAlign: "center" }}>
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                border: "2px solid",
+                borderColor: "primary.main",
+                borderTopColor: "transparent",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+                mx: "auto",
+                mb: 1,
+                "@keyframes spin": {
+                  "0%": { transform: "rotate(0deg)" },
+                  "100%": { transform: "rotate(360deg)" },
+                },
+              }}
+            />
+            <Typography variant="body2" color="text.secondary">
+              Loading...
+            </Typography>
+          </Box>
         </Box>
       </Container>
     );

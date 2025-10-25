@@ -3,6 +3,7 @@
 import { SideNav } from "@/components/SideNav";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { Box } from "@mui/material";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -23,12 +24,26 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: "grey.50",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <SideNav onLogout={handleLogout} />
       {/* Desktop: margin-left for full sidebar, Tablet: margin-left for thin sidebar, Mobile: padding-bottom for bottom nav */}
-      <div className="md:ml-64 sm:ml-16 pb-16 sm:pb-0">
-        <main className="min-h-screen">{children}</main>
-      </div>
-    </div>
+      <Box
+        component="main"
+        sx={{
+          minHeight: "100vh",
+          marginLeft: { xs: 0, sm: "64px", md: "256px" },
+          paddingBottom: { xs: "64px", sm: 0 },
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
   );
 }

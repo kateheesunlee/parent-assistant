@@ -4,6 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Users, Settings, LogOut, Home } from "lucide-react";
+import {
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 
 interface SideNavProps {
   onLogout: () => void;
@@ -11,6 +23,9 @@ interface SideNavProps {
 
 export function SideNav({ onLogout }: SideNavProps) {
   const pathname = usePathname();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
 
   const navigation = [
     {
@@ -37,128 +52,189 @@ export function SideNav({ onLogout }: SideNavProps) {
     return pathname.startsWith(href);
   };
 
+  const sidebarWidth = isTablet ? 64 : 256;
+
   return (
     <>
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 flex-col">
+      {/* Desktop & Tablet Sidebar */}
+      <Paper
+        elevation={3}
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          height: "100vh",
+          width: sidebarWidth,
+          zIndex: 50,
+          display: { xs: "none", sm: "flex" },
+          flexDirection: "column",
+          backgroundColor: "white",
+        }}
+      >
         {/* Header */}
-        <div className="p-6">
-          <h1 className="text-xl font-bold text-gray-900">Parent Assistant</h1>
-        </div>
+        <Box sx={{ p: isTablet ? 2 : 3, textAlign: "center" }}>
+          <Typography
+            variant={isTablet ? "h6" : "h5"}
+            component="h1"
+            sx={{
+              fontWeight: "bold",
+              color: "grey.900",
+              fontSize: isTablet ? "1rem" : "1.25rem",
+            }}
+          >
+            {isTablet ? "PA" : "Parent Assistant"}
+          </Typography>
+        </Box>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`
-                  flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors
-                  ${
-                    isActive(item.href)
-                      ? "bg-blue-50 text-blue-700 "
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }
-                `}
-              >
-                <Icon className="h-5 w-5" />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
+        <Box sx={{ flex: 1, p: isTablet ? 1 : 2 }}>
+          <List>
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <ListItem key={item.name} disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    href={item.href}
+                    sx={{
+                      borderRadius: 1,
+                      mb: 0.5,
+                      backgroundColor: active ? "primary.50" : "transparent",
+                      color: active ? "primary.700" : "grey.600",
+                      "&:hover": {
+                        backgroundColor: active ? "primary.50" : "grey.50",
+                        color: active ? "primary.700" : "grey.900",
+                      },
+                      justifyContent: isTablet ? "center" : "flex-start",
+                      px: isTablet ? 1 : 2,
+                      py: 1,
+                    }}
+                    title={isTablet ? item.name : undefined}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: isTablet ? "auto" : 40,
+                        justifyContent: "center",
+                        color: "inherit",
+                      }}
+                    >
+                      <Icon size={20} />
+                    </ListItemIcon>
+                    {!isTablet && (
+                      <ListItemText
+                        primary={item.name}
+                        sx={{
+                          "& .MuiListItemText-primary": {
+                            fontSize: "0.875rem",
+                            fontWeight: 500,
+                          },
+                        }}
+                      />
+                    )}
+                  </ListItemButton>
+                </ListItem>
+              );
+            })}
+          </List>
+        </Box>
 
         {/* Logout */}
-        <div className="p-4">
+        <Box sx={{ p: isTablet ? 1 : 2 }}>
           <Button
             variant="outline"
             onClick={onLogout}
-            className="w-full justify-start gap-3 text-gray-600 hover:text-red-600 hover:bg-red-50"
+            sx={{
+              width: "100%",
+              justifyContent: isTablet ? "center" : "flex-start",
+              gap: 1.5,
+
+              px: isTablet ? 1 : 2,
+              py: 1,
+            }}
+            title={isTablet ? "Sign Out" : undefined}
           >
-            <LogOut className="h-5 w-5" />
-            Sign Out
+            <LogOut size={20} />
+            {!isTablet && "Sign Out"}
           </Button>
-        </div>
-      </div>
-
-      {/* Tablet Sidebar (icon only) */}
-      <div className="hidden sm:flex md:hidden fixed top-0 left-0 h-full w-16 bg-white shadow-lg z-50 flex-col">
-        {/* Header */}
-        <div className="p-4 flex justify-center">
-          <h1 className="text-lg font-bold text-gray-900">PA</h1>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 p-2 space-y-2">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`
-                  flex items-center justify-center p-3 rounded-lg text-sm font-medium transition-colors
-                  ${
-                    isActive(item.href)
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }
-                `}
-                title={item.name}
-              >
-                <Icon className="h-5 w-5" />
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Logout */}
-        <div className="p-2 ">
-          <Button
-            variant="outline"
-            onClick={onLogout}
-            className="w-full justify-center p-3 text-gray-600 hover:text-red-600 hover:bg-red-50"
-            title="Sign Out"
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
+        </Box>
+      </Paper>
 
       {/* Mobile Bottom Navigation */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white shadow-md z-50">
-        <nav className="flex justify-around py-2">
+      <Paper
+        elevation={8}
+        sx={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          display: { xs: "block", sm: "none" },
+          backgroundColor: "white",
+        }}
+      >
+        <Box sx={{ display: "flex", justifyContent: "space-around", py: 1 }}>
           {navigation.map((item) => {
             const Icon = item.icon;
+            const active = isActive(item.href);
             return (
-              <Link
+              <Button
                 key={item.name}
+                component={Link}
                 href={item.href}
-                className={`
-                  flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors
-                  ${
-                    isActive(item.href)
-                      ? "text-blue-700"
-                      : "text-gray-600 hover:text-gray-900"
-                  }
-                `}
+                variant="ghost"
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 0.5,
+                  px: 1.5,
+                  py: 1,
+                  borderRadius: 1,
+                  color: active ? "primary.700" : "grey.600",
+
+                  minWidth: "auto",
+                }}
               >
-                <Icon className="h-5 w-5" />
-                <span>{item.name}</span>
-              </Link>
+                <Icon size={20} />
+                <Typography
+                  variant="caption"
+                  sx={{ fontSize: "0.75rem", fontWeight: 500 }}
+                >
+                  {item.name}
+                </Typography>
+              </Button>
             );
           })}
-          <button
+          <Button
             onClick={onLogout}
-            className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:text-red-600"
+            variant="ghost"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 0.5,
+              px: 1.5,
+              py: 1,
+              borderRadius: 1,
+              color: "grey.600",
+              "&:hover": {
+                color: "error.main",
+                backgroundColor: "transparent",
+              },
+              minWidth: "auto",
+            }}
           >
-            <LogOut className="h-5 w-5" />
-            <span>Sign Out</span>
-          </button>
-        </nav>
-      </div>
+            <LogOut size={20} />
+            <Typography
+              variant="caption"
+              sx={{ fontSize: "0.75rem", fontWeight: 500 }}
+            >
+              Sign Out
+            </Typography>
+          </Button>
+        </Box>
+      </Paper>
     </>
   );
 }
