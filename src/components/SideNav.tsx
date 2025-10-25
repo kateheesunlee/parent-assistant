@@ -24,7 +24,6 @@ interface SideNavProps {
 export function SideNav({ onLogout }: SideNavProps) {
   const pathname = usePathname();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
 
   const navigation = [
@@ -52,8 +51,6 @@ export function SideNav({ onLogout }: SideNavProps) {
     return pathname.startsWith(href);
   };
 
-  const sidebarWidth = isTablet ? 64 : 256;
-
   return (
     <>
       {/* Desktop & Tablet Sidebar */}
@@ -64,7 +61,7 @@ export function SideNav({ onLogout }: SideNavProps) {
           top: 0,
           left: 0,
           height: "100vh",
-          width: sidebarWidth,
+          width: { sm: 64, md: 256 },
           zIndex: 50,
           display: { xs: "none", sm: "flex" },
           flexDirection: "column",
@@ -148,9 +145,9 @@ export function SideNav({ onLogout }: SideNavProps) {
               width: "100%",
               justifyContent: isTablet ? "center" : "flex-start",
               gap: 1.5,
-
               px: isTablet ? 1 : 2,
               py: 1,
+              minWidth: "unset",
             }}
             title={isTablet ? "Sign Out" : undefined}
           >
