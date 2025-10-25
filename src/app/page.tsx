@@ -64,6 +64,7 @@ export default function HomePage() {
                 variant="h6"
                 color="text.secondary"
                 sx={{ fontSize: "1.25rem" }}
+                textAlign={{ xs: "center", lg: "left" }}
               >
                 Never miss important emails from schools, activities, or events
                 again. Parent Assistant automatically organizes emails, creates
