@@ -1,65 +1,362 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Typography, Box, Container, Grid } from "@mui/material";
+import { FeatureCard } from "@/components/FeatureCard";
+import { features } from "@/data/features";
+import { howItWorks } from "@/data/howItWorks";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+
+export default function HomePage() {
+  const router = useRouter();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          router.push("/dashboard");
+          return;
+        }
+
+        // Listen for auth state changes
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((event, session) => {
+          if (event === "SIGNED_IN" && session?.user) {
+            router.push("/dashboard");
+          }
+        });
+
+        return () => subscription.unsubscribe();
+      } catch {
+        // Silently handle auth check errors
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  // Show loading state while checking auth to prevent hydration mismatch
+  if (isCheckingAuth) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </Box>
+    );
+  }
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <Box
+      sx={{
+        minHeight: "100vh",
+      }}
+    >
+      {/* Header */}
+      <Box component="header" sx={{ bgcolor: "white", boxShadow: 1 }}>
+        <Container maxWidth="lg">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              py: 3,
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <Typography
+              variant="h4"
+              component="h1"
+              fontWeight="bold"
+              color="text.primary"
+            >
+              Parent Assistant
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Hero Section */}
+      <Box component="section" sx={{ py: 10 }}>
+        <Container maxWidth="lg">
+          <Grid container spacing={6} alignItems="center">
+            {/* Left side - Main content */}
+            <Grid
+              size={{
+                xs: 12,
+                lg: 8,
+              }}
+            >
+              <Typography
+                variant="h2"
+                component="h1"
+                fontWeight="bold"
+                color="text.primary"
+                sx={{ mb: 3 }}
+                textAlign={{ xs: "center", lg: "left" }}
+              >
+                <Box component="span" color="primary.main">
+                  Smart email assistant{" "}
+                </Box>
+                for busy parents
+              </Typography>
+              <Typography
+                variant="h6"
+                color="text.secondary"
+                sx={{ fontSize: "1.25rem" }}
+              >
+                Never miss important emails from schools, activities, or events
+                again. Parent Assistant automatically organizes emails, creates
+                calendar events, and translates content to keep you informed.
+              </Typography>
+            </Grid>
+
+            {/* Right side - CTA buttons */}
+            <Grid
+              size={{
+                xs: 12,
+                lg: 4,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 3,
+                }}
+              >
+                <Box sx={{ width: "100%", maxWidth: 300 }}>
+                  <Link href="/auth" style={{ textDecoration: "none" }}>
+                    <Button size="lg" fullWidth>
+                      Continue with Google
+                    </Button>
+                  </Link>
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Features Section */}
+      <Box component="section" id="features" sx={{ py: 10, bgcolor: "white" }}>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: "center", mb: 8 }}>
+            <Typography
+              variant="h3"
+              component="h2"
+              fontWeight="bold"
+              color="text.primary"
+              sx={{ mb: 2 }}
+            >
+              Everything You Need to Stay Organized
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Powerful automation tools designed specifically for busy parents
+            </Typography>
+          </Box>
+
+          <Grid container spacing={4}>
+            {features.map((feature) => (
+              <Grid
+                size={{
+                  xs: 12,
+                  md: 6,
+                  lg: 4,
+                }}
+                key={feature.id}
+              >
+                <FeatureCard
+                  icon={feature.icon}
+                  title={feature.title}
+                  description={feature.description}
+                  iconColor={feature.iconColor}
+                  iconBgColor={feature.iconBgColor}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* How It Works Section */}
+      <Box
+        component="section"
+        id="how-it-works"
+        sx={{ py: 10, bgcolor: "grey.50" }}
+      >
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: "center", mb: 8 }}>
+            <Typography
+              variant="h3"
+              component="h2"
+              fontWeight="bold"
+              color="text.primary"
+              sx={{ mb: 2 }}
+            >
+              How It Works
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Get set up in minutes and start automating your children&apos;s
+              communications from all sources
+            </Typography>
+          </Box>
+
+          <Grid container spacing={4}>
+            {howItWorks.map((step) => (
+              <HowItWorksCard
+                key={step.step}
+                step={step.step}
+                title={step.title}
+                description={step.description}
+                iconColor={step.iconColor}
+              />
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Footer */}
+      <Box
+        component="footer"
+        sx={{ bgcolor: "grey.900", color: "white", py: 4 }}
+      >
+        <Container maxWidth="lg">
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 3,
+            }}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            <Box sx={{ mb: { xs: 2, md: 0 } }}>
+              <Typography variant="h6" fontWeight="semibold" sx={{ mb: 1 }}>
+                Parent Assistant
+              </Typography>
+              <Typography variant="body2" color="grey.400">
+                Smart email assistant for busy parents.
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", gap: 3 }}>
+              <Typography
+                component="a"
+                href="#features"
+                sx={{
+                  color: "grey.400",
+                  textDecoration: "none",
+                  "&:hover": { color: "white" },
+                }}
+              >
+                Features
+              </Typography>
+              <Typography
+                component="a"
+                href="#how-it-works"
+                sx={{
+                  color: "grey.400",
+                  textDecoration: "none",
+                  "&:hover": { color: "white" },
+                }}
+              >
+                How It Works
+              </Typography>
+              <Typography
+                component="a"
+                href="#"
+                sx={{
+                  color: "grey.400",
+                  textDecoration: "none",
+                  "&:hover": { color: "white" },
+                }}
+              >
+                Privacy Policy
+              </Typography>
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              borderTop: 1,
+              borderColor: "grey.800",
+              pt: 3,
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="body2" color="grey.400">
+              &copy; 2024 Parent Assistant. All rights reserved.
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
   );
 }
+
+const HowItWorksCard = ({
+  step,
+  title,
+  description,
+  iconColor,
+}: {
+  step: number;
+  title: string;
+  description: string;
+  iconColor: string;
+}) => {
+  return (
+    <Grid
+      size={{
+        xs: 12,
+        sm: 6,
+        md: 3,
+      }}
+    >
+      <Box sx={{ textAlign: "center" }}>
+        <Box
+          sx={{
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            borderWidth: 2,
+            borderStyle: "solid",
+            borderColor: iconColor,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mx: "auto",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h4" fontWeight="bold" color={iconColor}>
+            {step}
+          </Typography>
+        </Box>
+        <Typography variant="h6" fontWeight="semibold" sx={{ mb: 1 }}>
+          {title}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {description}
+        </Typography>
+      </Box>
+    </Grid>
+  );
+};
