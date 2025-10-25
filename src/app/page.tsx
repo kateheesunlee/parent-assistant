@@ -6,64 +6,9 @@ import { Typography, Box, Container, Grid } from "@mui/material";
 import { FeatureCard } from "@/components/FeatureCard";
 import { features } from "@/data/features";
 import { howItWorks } from "@/data/howItWorks";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 export default function HomePage() {
-  const router = useRouter();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session?.user) {
-          router.push("/dashboard");
-          return;
-        }
-
-        // Listen for auth state changes
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange((event, session) => {
-          if (event === "SIGNED_IN" && session?.user) {
-            router.push("/dashboard");
-          }
-        });
-
-        return () => subscription.unsubscribe();
-      } catch {
-        // Silently handle auth check errors
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
-  // Show loading state while checking auth to prevent hydration mismatch
-  if (isCheckingAuth) {
-    return (
-      <Box
-        sx={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
-        </div>
-      </Box>
-    );
-  }
+  // No need to check auth here. This page is public.
   return (
     <Box
       sx={{

@@ -5,12 +5,36 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Box, Typography, Container, Paper, Alert } from "@mui/material";
 import { Google as GoogleIcon } from "@mui/icons-material";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 function AuthPageContent() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const searchParams = useSearchParams();
+
+  // Check if user is already authenticated and redirect to dashboard
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          router.push("/dashboard");
+          return;
+        }
+      } catch {
+        // Silently handle auth check errors
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -28,6 +52,7 @@ function AuthPageContent() {
         provider: "google",
         options: {
           scopes: "openid email profile",
+          redirectTo: `${window.location.origin}/dashboard`,
         },
       });
 
@@ -40,6 +65,27 @@ function AuthPageContent() {
       setLoading(false);
     }
   };
+
+  // Show loading state while checking auth to prevent flash of content
+  if (isCheckingAuth) {
+    return (
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Loading...</p>
+          </div>
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="sm">
