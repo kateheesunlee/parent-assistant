@@ -19,10 +19,12 @@ const ChildrenPage = () => {
   const handleAddChild = () => {
     setShowAddChild(true);
     // scroll to the add child card
-    const addChildCard = document.getElementById("add-child-card");
-    if (addChildCard) {
-      addChildCard.scrollIntoView({ behavior: "smooth" });
-    }
+    setTimeout(() => {
+      const addChildCard = document.getElementById("add-child-card");
+      if (addChildCard) {
+        addChildCard.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
   };
 
   if (isLoading) {

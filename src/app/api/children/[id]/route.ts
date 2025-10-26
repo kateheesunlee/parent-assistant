@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getGoogleAccessToken } from "@/lib/auth";
+import { GmailService } from "@/services/gmail";
 
 export async function PUT(
   request: NextRequest,
@@ -86,15 +88,64 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Delete child (ensuring user owns it)
-    const { error } = await supabase
+    // First, fetch the child to get label_id and filter_id
+    const { data: child, error: fetchError } = await supabase
+      .from("children")
+      .select("label_id, filter_id")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (fetchError || !child) {
+      console.error("Error fetching child:", fetchError);
+      return NextResponse.json({ error: "Child not found" }, { status: 404 });
+    }
+
+    // Delete Gmail label and filter if they exist
+    try {
+      const accessToken = await getGoogleAccessToken();
+
+      if (accessToken) {
+        const gmailService = new GmailService(accessToken);
+
+        // Delete Gmail filter first (if it exists)
+        if (child.filter_id) {
+          try {
+            await gmailService.deleteFilter(child.filter_id);
+            console.log(
+              `Successfully deleted Gmail filter: ${child.filter_id}`
+            );
+          } catch (filterError) {
+            console.error("Failed to delete Gmail filter:", filterError);
+            // Continue even if filter deletion fails
+          }
+        }
+
+        // Delete Gmail label (if it exists)
+        if (child.label_id) {
+          try {
+            await gmailService.deleteLabel(child.label_id);
+            console.log(`Successfully deleted Gmail label: ${child.label_id}`);
+          } catch (labelError) {
+            console.error("Failed to delete Gmail label:", labelError);
+            // Continue even if label deletion fails
+          }
+        }
+      }
+    } catch (gmailError) {
+      console.error("Error in Gmail cleanup:", gmailError);
+      // Continue with child deletion even if Gmail cleanup fails
+    }
+
+    // Delete child record
+    const { error: deleteError } = await supabase
       .from("children")
       .delete()
       .eq("id", id)
       .eq("user_id", user.id);
 
-    if (error) {
-      console.error("Error deleting child:", error);
+    if (deleteError) {
+      console.error("Error deleting child:", deleteError);
       return NextResponse.json(
         { error: "Failed to delete child" },
         { status: 500 }

@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useChildrenStore } from "@/stores/childrenStore";
-import {
-  Child,
-  CreateChildRequest,
-  UpdateChildRequest,
-} from "@/types/children";
+import { CreateChildRequest, UpdateChildRequest } from "@/types/children";
 import { useToast } from "@/components/ui/toast-provider";
 
 export function useChildren() {

@@ -51,7 +51,8 @@ function AuthPageContent() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          scopes: "openid email profile",
+          scopes:
+            "openid email profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.settings.basic https://www.googleapis.com/auth/calendar.events",
           redirectTo: `${window.location.origin}/dashboard`,
         },
       });

@@ -9,6 +9,10 @@ export interface Child {
   filter_id: string | null;
   created_at: string;
   updated_at: string;
+  sync_status?: {
+    label_deleted?: boolean;
+    filter_deleted?: boolean;
+  };
 }
 
 export interface ChildFormValues {

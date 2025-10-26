@@ -19,15 +19,17 @@ import {
   CardContent,
   Typography,
   Chip,
-  Stack,
   FormControl,
   OutlinedInput,
   InputAdornment,
   IconButton,
   FormLabel,
   FormHelperText,
+  Grid,
+  Tooltip,
+  Alert,
 } from "@mui/material";
-import { Plus, X, Trash2, Save } from "lucide-react";
+import { Plus, X, Trash2, Save, Info, AlertTriangle } from "lucide-react";
 
 interface ChildCardProps {
   child?: Child;
@@ -216,10 +218,35 @@ export default function ChildCard({
             )
           }
         />
+        {child?.sync_status &&
+          (child.sync_status.label_deleted ||
+            child.sync_status.filter_deleted) && (
+            <Alert
+              severity="warning"
+              icon={<AlertTriangle size={20} />}
+              sx={{ m: 2, mb: 0 }}
+            >
+              <Typography variant="body2" fontWeight="bold" gutterBottom>
+                Gmail resources out of sync
+              </Typography>
+              <Box component="ul" sx={{ pl: 2, m: 0 }}>
+                {child.sync_status.label_deleted && (
+                  <li>Gmail label has been deleted</li>
+                )}
+                {child.sync_status.filter_deleted && (
+                  <li>Gmail filter has been deleted</li>
+                )}
+              </Box>
+              <Typography variant="body2" sx={{ mt: 0.5, fontSize: "0.75rem" }}>
+                Please update or recreate this child to re-establish Gmail
+                integration.
+              </Typography>
+            </Alert>
+          )}
         <CardContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <FormControl required>
-              <FormLabel htmlFor="name">Name</FormLabel>
+              <FormLabel htmlFor="name">First name</FormLabel>
               <OutlinedInput
                 id="name"
                 name="name"
@@ -261,29 +288,15 @@ export default function ChildCard({
               </FormHelperText>
             </FormControl>
             <FormControl>
-              <FormLabel>Expected senders</FormLabel>
-              {formik.values.expected_senders.length > 0 && (
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ mb: 1, flexWrap: "wrap", gap: 0.5 }}
-                >
-                  {formik.values.expected_senders.map((sender, index) => (
-                    <Chip
-                      key={index}
-                      label={sender}
-                      onDelete={() => handleRemoveSender(sender)}
-                      size="medium"
-                      disabled={isLoading}
-                      color="primary"
-                      sx={{
-                        fontWeight: 600,
-                        borderRadius: 4,
-                      }}
-                    />
-                  ))}
-                </Stack>
-              )}
+              <LabelWithTooltip
+                label="Expected senders"
+                tooltip="Emails containing the child's name AND from these addresses will be automatically labeled. Example: school@example.com, teacher@example.com"
+              />
+              <ChipsGrid
+                items={formik.values.expected_senders}
+                onDelete={handleRemoveSender}
+                isLoading={isLoading}
+              />
               <OutlinedInput
                 name="expected_senders"
                 type="email"
@@ -312,29 +325,15 @@ export default function ChildCard({
             </FormControl>
 
             <FormControl>
-              <FormLabel>Keywords</FormLabel>
-              {formik.values.keywords.length > 0 && (
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ mb: 1, flexWrap: "wrap", gap: 0.5 }}
-                >
-                  {formik.values.keywords.map((keyword, index) => (
-                    <Chip
-                      key={index}
-                      label={keyword}
-                      onDelete={() => handleRemoveKeyword(keyword)}
-                      size="medium"
-                      disabled={isLoading}
-                      color="primary"
-                      sx={{
-                        borderRadius: 4,
-                        fontWeight: 600,
-                      }}
-                    />
-                  ))}
-                </Stack>
-              )}
+              <LabelWithTooltip
+                label="Keywords"
+                tooltip="Emails containing the child's name AND any of these keywords will be automatically labeled. Example: homework, field trip, permission slip"
+              />
+              <ChipsGrid
+                items={formik.values.keywords}
+                onDelete={handleRemoveKeyword}
+                isLoading={isLoading}
+              />
               <OutlinedInput
                 name="keywords"
                 size="small"
@@ -381,3 +380,55 @@ export default function ChildCard({
     </>
   );
 }
+
+const LabelWithTooltip = ({
+  label,
+  tooltip,
+}: {
+  label: string;
+  tooltip: string;
+}) => {
+  return (
+    <FormLabel sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+      {label}
+
+      <Tooltip title={tooltip} arrow placement="top">
+        <Info size={16} style={{ cursor: "help", opacity: 0.6 }} />
+      </Tooltip>
+    </FormLabel>
+  );
+};
+
+const ChipsGrid = ({
+  items,
+  onDelete,
+  isLoading,
+}: {
+  items: string[];
+  onDelete: (item: string) => void;
+  isLoading: boolean;
+}) => {
+  if (items.length === 0) return null;
+  return (
+    <Grid
+      container
+      direction="row"
+      spacing={1}
+      sx={{ mb: 1, flexWrap: "wrap", gap: 0.5 }}
+    >
+      {items.map((item, index) => (
+        <Grid key={index}>
+          <Chip
+            key={index}
+            label={item}
+            onDelete={() => onDelete(item)}
+            size="medium"
+            disabled={isLoading}
+            color="primary"
+            sx={{ borderRadius: 4, fontWeight: 600 }}
+          />
+        </Grid>
+      ))}
+    </Grid>
+  );
+};
