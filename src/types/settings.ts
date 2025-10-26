@@ -21,9 +21,29 @@ export interface UpdateSettingsRequest {
   last_gmail_history_id?: string;
 }
 
+export interface CalendarListEntry {
+  id: string;
+  summary: string;
+  description?: string;
+  timeZone?: string;
+  accessRole: string;
+  backgroundColor?: string;
+  foregroundColor?: string;
+  primary?: boolean;
+}
+
+export interface CalendarResponse {
+  calendars: CalendarListEntry[];
+  error?: string;
+}
+
 export interface UpdateCalendarRequest {
   calendar_id?: string;
   calendar_name?: string;
+}
+
+export interface CreateCalendarRequest {
+  calendar_name: string;
 }
 
 export interface UpdateLanguageRequest {

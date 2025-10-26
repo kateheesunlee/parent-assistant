@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import {
   Settings,
   UpdateSettingsRequest,
-  UpdateCalendarRequest,
   UpdateLanguageRequest,
+  CalendarListEntry,
+  CreateCalendarRequest,
+  UpdateCalendarRequest,
 } from "@/types/settings";
 import { useToast } from "@/components/ui/toast-provider";
 
@@ -97,44 +99,6 @@ export function useUpdateSettings() {
   };
 
   return { updateSettings, isLoading };
-}
-
-export function useUpdateCalendar() {
-  const { showSuccess, showError } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const updateCalendar = async (data: UpdateCalendarRequest) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/settings/calendar", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to update calendar settings");
-      }
-
-      showSuccess("Calendar settings updated successfully");
-      return result.settings;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Failed to update calendar settings";
-      showError(errorMessage);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { updateCalendar, isLoading };
 }
 
 export function useUpdateLanguage() {
@@ -244,4 +208,138 @@ export function useUpdateService() {
   };
 
   return { startService, stopService, isLoading };
+}
+
+export function useCalendars() {
+  const [calendars, setCalendars] = useState<CalendarListEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCalendars = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("/api/calendars");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch calendars");
+        }
+
+        setCalendars(data.calendars || []);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to fetch calendars";
+        setError(errorMessage);
+        setCalendars([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCalendars();
+  }, []);
+
+  const refetch = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/calendars");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch calendars");
+      }
+
+      setCalendars(data.calendars || []);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch calendars";
+      setError(errorMessage);
+      setCalendars([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addCalendar = async (calendar: CalendarListEntry) => {
+    setCalendars([...calendars, calendar]);
+  };
+
+  return { calendars, isLoading, error, refetch, addCalendar };
+}
+
+export function useUpdateCalendar() {
+  const { showSuccess, showError } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const updateCalendar = async (data: UpdateCalendarRequest) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/settings/calendar", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update calendar settings");
+      }
+
+      showSuccess("Calendar settings updated successfully");
+      return result.settings;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to update calendar settings";
+      showError(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { updateCalendar, isLoading };
+}
+
+export function useCreateCalendar() {
+  const { showSuccess, showError } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const createCalendar = async (data: CreateCalendarRequest) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/settings/calendar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to create calendar");
+      }
+
+      showSuccess("Calendar created successfully");
+      return result.calendar;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to create calendar";
+      showError(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { createCalendar, isLoading };
 }

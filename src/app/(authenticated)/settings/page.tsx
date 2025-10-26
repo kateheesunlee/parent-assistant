@@ -7,10 +7,10 @@ import {
   Card,
   CardHeader,
   CardContent,
-  CircularProgress,
 } from "@mui/material";
 import { Calendar, Globe, Power } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
+import CalendarSettings from "@/components/CalendarSettings";
 
 const SettingsPage = () => {
   const { settings, isLoading, error } = useSettings();
@@ -36,12 +36,6 @@ const SettingsPage = () => {
         </Box>
       </Box>
 
-      {isLoading && (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
-
       {error && (
         <Box sx={{ mb: 2 }}>
           <Typography color="error">{error}</Typography>
@@ -52,6 +46,9 @@ const SettingsPage = () => {
         {/* Calendar Card */}
         <Card>
           <CardHeader
+            sx={{
+              paddingBottom: 0,
+            }}
             avatar={
               <Box
                 sx={{
@@ -68,7 +65,13 @@ const SettingsPage = () => {
             }
             title={<Typography variant="h5">Calendar settings</Typography>}
           />
-          <CardContent>{/* Form content will be added here */}</CardContent>
+          <CardContent>
+            <CalendarSettings
+              isLoading={isLoading}
+              settingsCalendarId={settings?.calendar_id ?? undefined}
+              settingsCalendarName={settings?.calendar_name ?? undefined}
+            />
+          </CardContent>
         </Card>
 
         {/* Language Card */}
