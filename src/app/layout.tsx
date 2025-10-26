@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import MuiThemeProvider from "@/components/MuiThemeProvider";
 import ThemeRegistry from "./ThemeRegistry";
+import { ToastProvider } from "@/components/ui/toast-provider";
 
 export const metadata: Metadata = {
   title: "Parent Assistant",
@@ -17,7 +18,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeRegistry>
-          <MuiThemeProvider>{children}</MuiThemeProvider>
+          <MuiThemeProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </MuiThemeProvider>
         </ThemeRegistry>
       </body>
     </html>

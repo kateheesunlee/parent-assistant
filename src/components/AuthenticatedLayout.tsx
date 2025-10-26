@@ -31,7 +31,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
         <Box
           sx={{
             minHeight: "100vh",
-            backgroundColor: "grey.50",
+            backgroundColor: "background.default",
             display: "flex",
             flexDirection: "column",
           }}

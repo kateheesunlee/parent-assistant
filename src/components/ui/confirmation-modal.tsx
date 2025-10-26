@@ -11,7 +11,7 @@ import {
   Alert,
   AlertTitle,
 } from "@mui/material";
-import { Close, Warning, Info, Error } from "@mui/icons-material";
+import { X, AlertTriangle, Info, AlertCircle } from "lucide-react";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -40,19 +40,19 @@ export function ConfirmationModal({
     switch (variant) {
       case "danger":
         return {
-          icon: <Error color="error" />,
+          icon: <AlertCircle size={24} color="error.main`" />,
           severity: "error" as const,
           confirmColor: "error" as const,
         };
       case "warning":
         return {
-          icon: <Warning color="warning" />,
+          icon: <AlertTriangle size={24} color="warning.main" />,
           severity: "warning" as const,
           confirmColor: "warning" as const,
         };
       case "info":
         return {
-          icon: <Info color="info" />,
+          icon: <Info size={24} color="info.main" />,
           severity: "info" as const,
           confirmColor: "primary" as const,
         };
@@ -63,26 +63,31 @@ export function ConfirmationModal({
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
+      <DialogTitle sx={{ padding: 2 }}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box display="flex" alignItems="center" gap={1}>
             {config.icon}
             <Typography variant="h6">{title}</Typography>
           </Box>
           <IconButton onClick={onClose} disabled={isLoading} size="small">
-            <Close />
+            <X size={20} />
           </IconButton>
         </Box>
       </DialogTitle>
 
-      <DialogContent>
-        <Alert severity={config.severity} sx={{ mb: 2 }}>
+      <DialogContent sx={{ padding: 2 }}>
+        <Alert severity={config.severity}>
           <AlertTitle>{title}</AlertTitle>
           {message}
         </Alert>
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions
+        sx={{
+          padding: 2,
+          paddingTop: 0,
+        }}
+      >
         <Button onClick={onClose} disabled={isLoading} variant="outlined">
           {cancelText}
         </Button>

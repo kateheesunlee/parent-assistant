@@ -2,49 +2,56 @@ import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({
   palette: {
+    mode: "light",
     primary: {
-      main: "#1976d2",
-      light: "#42a5f5",
-      lighter: "#64b5f6",
-      dark: "#1565c0",
+      main: "#1A3A5F", // Blue base color
+      light: "#3d6488",
+      lighter: "#75b8d6",
+      dark: "#132842",
+      contrastText: "#ffffff",
     },
     secondary: {
-      main: "#dc004e",
-      light: "#ff5983",
-      lighter: "#ff86b3",
-      dark: "#9a0036",
+      main: "#bcbf8f", // Olive beige base color
+      light: "#d2d5b3",
+      lighter: "#f0f1e8",
+      dark: "#a8ac7d",
+      contrastText: "#082241",
     },
     error: {
-      main: "#d32f2f",
-      light: "#ef5350",
-      lighter: "#ff7961",
-      dark: "#c62828",
+      main: "#c05a5a", // Soft red
+      light: "#e69999",
+      lighter: "#fcdede",
+      dark: "#a04545",
+      contrastText: "#ffffff",
     },
     warning: {
-      main: "#ed6c02",
-      light: "#ff9800",
-      lighter: "#ffb74d",
-      dark: "#e65100",
+      main: "#e8923a", // Soft orange
+      light: "#f5b868",
+      lighter: "#ffe4b8",
+      dark: "#d87d25",
+      contrastText: "#082241",
     },
     info: {
-      main: "#0288d1",
-      light: "#03a9f4",
-      lighter: "#4fc3f7",
-      dark: "#01579b",
+      main: "#5a8faf", // Soft blue
+      light: "#8ab5d0",
+      lighter: "#d4e8f5",
+      dark: "#457699",
+      contrastText: "#ffffff",
     },
     success: {
-      main: "#2e7d32",
-      light: "#4caf50",
-      lighter: "#81c784",
-      dark: "#1b5e20",
+      main: "#5a9a66", // Soft green
+      light: "#8cc595",
+      lighter: "#d4efdb",
+      dark: "#457a52",
+      contrastText: "#ffffff",
     },
     background: {
-      default: "#fafafa",
+      default: "#FAFAF7",
       paper: "#ffffff",
     },
     text: {
-      primary: "#212121",
-      secondary: "#757575",
+      primary: "#082241",
+      secondary: "#4a5568",
     },
   },
   typography: {
@@ -123,6 +130,34 @@ export const theme = createTheme({
           "& .MuiOutlinedInput-root": {
             borderRadius: 8,
           },
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          padding: "4px 8px",
+        },
+        input: {
+          padding: "4px 0",
+          fontSize: "0.875rem",
+        },
+      },
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          marginBottom: 4,
+          fontSize: "0.75rem",
+          fontWeight: 600,
+          color: "rgba(0, 0, 0, 0.6)",
+        },
+      },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          marginLeft: 4,
         },
       },
     },
