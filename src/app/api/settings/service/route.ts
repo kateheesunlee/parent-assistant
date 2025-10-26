@@ -1,6 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { UpdateServiceRequest } from "@/types/settings";
+import { Child } from "@/types/children";
+
+export interface ServiceSettings {
+  calendar_id: string;
+  calendar_name: string;
+  preferred_language: string;
+  automation_enabled: boolean;
+}
+
+async function sendWebhook(
+  event: "start" | "stop",
+  userId: string,
+  settings: ServiceSettings,
+  children: Child[]
+) {
+  const webhookUrl = process.env.N8N_WEBHOOK_URL;
+  if (!webhookUrl) {
+    console.warn("N8N_WEBHOOK_URL not configured, skipping webhook call");
+    return;
+  }
+
+  try {
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        event,
+        userId,
+        settings: {
+          calendar_id: settings.calendar_id,
+          calendar_name: settings.calendar_name,
+          preferred_language: settings.preferred_language,
+          automation_enabled: settings.automation_enabled,
+        },
+        children: children,
+        timestamp: new Date().toISOString(),
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to send webhook:", error);
+    // Don't throw - webhook failure shouldn't fail the API call
+  }
+}
 
 export async function PUT(request: NextRequest) {
   try {
@@ -84,6 +129,20 @@ export async function PUT(request: NextRequest) {
       }
 
       result = data;
+    }
+
+    // Send webhook notification if automation status changed
+    if (automation_enabled !== undefined) {
+      const event = automation_enabled ? "start" : "stop";
+      const { data: children } = await supabase
+        .from("children")
+        .select("*")
+        .eq("user_id", user.id);
+      if (children) {
+        await sendWebhook(event, user.id, result, children);
+      } else {
+        console.error("No children found for user:", user.id);
+      }
     }
 
     return NextResponse.json({ settings: result });

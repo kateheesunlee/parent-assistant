@@ -1,19 +1,23 @@
 "use client";
 
-import {
-  Box,
-  Typography,
-  Container,
-  Card,
-  CardHeader,
-  CardContent,
-} from "@mui/material";
+import { Box, Typography, Container, SelectChangeEvent } from "@mui/material";
 import { Calendar, Globe, Power } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
+import SettingsCard from "@/components/SettingsCard";
 import CalendarSettings from "@/components/CalendarSettings";
+import LanguageSetting from "@/components/LanguageSetting";
+import ServiceControlSetting from "@/components/ServiceControlSetting";
+import { useUpdateLanguage } from "@/hooks/useSettings";
 
 const SettingsPage = () => {
   const { settings, isLoading, error } = useSettings();
+  const { updateLanguage } = useUpdateLanguage();
+
+  const handleLanguageChange = async (event: SelectChangeEvent<string>) => {
+    await updateLanguage({
+      preferred_language: event.target.value,
+    });
+  };
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -43,79 +47,24 @@ const SettingsPage = () => {
       )}
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {/* Calendar Card */}
-        <Card>
-          <CardHeader
-            sx={{
-              paddingBottom: 0,
-            }}
-            avatar={
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-
-                  borderRadius: 1,
-                  bgcolor: "primary.50",
-                }}
-              >
-                <Calendar size={20} color="currentColor" />
-              </Box>
-            }
-            title={<Typography variant="h5">Calendar settings</Typography>}
+        <SettingsCard title="Calendar settings" icon={<Calendar size={20} />}>
+          <CalendarSettings
+            isLoading={isLoading}
+            settingsCalendarId={settings?.calendar_id ?? undefined}
+            settingsCalendarName={settings?.calendar_name ?? undefined}
           />
-          <CardContent>
-            <CalendarSettings
-              isLoading={isLoading}
-              settingsCalendarId={settings?.calendar_id ?? undefined}
-              settingsCalendarName={settings?.calendar_name ?? undefined}
-            />
-          </CardContent>
-        </Card>
+        </SettingsCard>
 
-        {/* Language Card */}
-        <Card>
-          <CardHeader
-            avatar={
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 1,
-                  bgcolor: "primary.50",
-                }}
-              >
-                <Globe size={20} color="currentColor" />
-              </Box>
-            }
-            title={<Typography variant="h5">Language preferences</Typography>}
+        <SettingsCard title="Language preferences" icon={<Globe size={20} />}>
+          <LanguageSetting
+            settingsLanguage={settings?.preferred_language ?? undefined}
+            handleLanguageChange={handleLanguageChange}
           />
-          <CardContent>{/* Form content will be added here */}</CardContent>
-        </Card>
+        </SettingsCard>
 
-        {/* Start Automation Card */}
-        <Card>
-          <CardHeader
-            avatar={
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-
-                  borderRadius: 1,
-                  bgcolor: "primary.50",
-                }}
-              >
-                <Power size={20} color="currentColor" />
-              </Box>
-            }
-            title={<Typography variant="h5">Service control</Typography>}
-          />
-          <CardContent>{/* Form content will be added here */}</CardContent>
-        </Card>
+        <SettingsCard title="Service control" icon={<Power size={20} />}>
+          <ServiceControlSetting isLoading={isLoading} />
+        </SettingsCard>
       </Box>
     </Container>
   );
