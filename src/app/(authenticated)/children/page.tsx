@@ -100,9 +100,17 @@ const ChildrenPage = () => {
             <Typography variant="h6" color="text.secondary" gutterBottom>
               No children added yet
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               Click the button below to add your first child
             </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddChild}
+              startIcon={<PlusIcon size={16} />}
+            >
+              Add child
+            </Button>
           </Box>
         )}
 

@@ -32,14 +32,108 @@ export async function PUT(
       );
     }
 
-    // Update child (ensuring user owns it)
+    // First, fetch the existing child to get label_id and filter_id
+    const { data: existingChild, error: fetchError } = await supabase
+      .from("children")
+      .select("*")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (fetchError || !existingChild) {
+      return NextResponse.json({ error: "Child not found" }, { status: 404 });
+    }
+
+    let labelId = existingChild.label_id;
+    let filterId = existingChild.filter_id;
+
+    try {
+      // Get Google access token
+      const accessToken = await getGoogleAccessToken();
+
+      if (!accessToken) {
+        console.error("No Google access token available");
+        return NextResponse.json(
+          {
+            error: "Google authentication required",
+            details:
+              "Please sign in with Google to update children. Your session may have expired.",
+          },
+          { status: 401 }
+        );
+      }
+
+      const gmailService = new GmailService(accessToken);
+
+      // Check if we need to recreate label
+      const labelExists = labelId ? await gmailService.getLabel(labelId) : null;
+
+      if (!labelExists || label_name !== existingChild.label_name) {
+        // Delete old label if it exists and is different
+        if (labelExists && labelId) {
+          try {
+            await gmailService.deleteLabel(labelId);
+            console.log(`Deleted old label: ${labelId}`);
+          } catch (deleteError) {
+            console.error("Error deleting old label:", deleteError);
+            // Continue anyway
+          }
+        }
+
+        // Create new label
+        const labelResponse = await gmailService.createLabel(label_name);
+        labelId = labelResponse.id;
+        console.log(`Created new label: ${labelId}`);
+      }
+
+      // Delete old filter if it exists
+      if (filterId) {
+        try {
+          await gmailService.deleteFilter(filterId);
+          console.log(`Deleted old filter: ${filterId}`);
+        } catch (deleteError) {
+          console.error("Error deleting old filter:", deleteError);
+          // Continue anyway
+        }
+      }
+
+      // Create new filter with updated criteria
+      if (labelId) {
+        const filterResponse = await gmailService.createFilter(
+          name,
+          expected_senders || [],
+          keywords || [],
+          labelId
+        );
+        filterId = filterResponse.id;
+        console.log(`Created new filter: ${filterId}`);
+      }
+    } catch (gmailError) {
+      console.error("Error in Gmail operations:", gmailError);
+      const errorMessage =
+        gmailError instanceof Error
+          ? gmailError.message
+          : "Failed to update Gmail label or filter";
+
+      return NextResponse.json(
+        {
+          error: "Gmail integration failed",
+          details: errorMessage,
+        },
+        { status: 500 }
+      );
+    }
+
+    // Update child with new label_id and filter_id
     const { data, error } = await supabase
       .from("children")
       .update({
         name,
         label_name,
+        label_id: labelId,
         expected_senders,
         keywords,
+        filter_id: filterId,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
