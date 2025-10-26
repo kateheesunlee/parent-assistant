@@ -52,7 +52,7 @@ function AuthPageContent() {
         provider: "google",
         options: {
           scopes:
-            "openid email profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.settings.basic https://www.googleapis.com/auth/calendar.events",
+            "openid email profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.settings.basic https://www.googleapis.com/auth/calendar",
           redirectTo: `${window.location.origin}/dashboard`,
         },
       });

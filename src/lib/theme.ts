@@ -124,6 +124,13 @@ export const theme = createTheme({
         },
       },
     },
+    MuiCardHeader: {
+      styleOverrides: {
+        avatar: {
+          marginRight: 12,
+        },
+      },
+    },
     MuiTextField: {
       styleOverrides: {
         root: {

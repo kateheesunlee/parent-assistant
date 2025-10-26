@@ -37,7 +37,7 @@ The application requires these Google scopes:
 - `profile`
 - `https://www.googleapis.com/auth/gmail.modify`
 - `https://www.googleapis.com/auth/gmail.settings.basic`
-- `https://www.googleapis.com/auth/calendar.events`
+- `https://www.googleapis.com/auth/calendar`
 
 ### 3. Enable Provider Token Storage
 
@@ -65,7 +65,7 @@ Added required Gmail and Calendar scopes to the OAuth configuration:
 
 ```typescript
 scopes:
-  "openid email profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.settings.basic https://www.googleapis.com/auth/calendar.events"
+  "openid email profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.settings.basic https://www.googleapis.com/auth/calendar"
 ```
 
 **Important**: Do NOT add `queryParams` with `prompt: "consent"` - this causes issues with token storage. Let Supabase handle the OAuth flow automatically.
