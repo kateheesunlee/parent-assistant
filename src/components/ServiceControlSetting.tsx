@@ -13,14 +13,8 @@ import { CheckCircle, AlertCircle } from "lucide-react";
 import { useSettings, useUpdateService } from "@/hooks/useSettings";
 import { useChildren } from "@/hooks/useChildren";
 
-interface ServiceControlSettingProps {
-  isLoading?: boolean;
-}
-
-const ServiceControlSetting = ({
-  isLoading: isSettingsLoading,
-}: ServiceControlSettingProps) => {
-  const { settings } = useSettings();
+const ServiceControlSetting = () => {
+  const { settings, isLoading: isSettingsLoading } = useSettings();
   const { children, isLoading: isChildrenLoading } = useChildren();
   const {
     startService,

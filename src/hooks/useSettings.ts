@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  Settings,
   UpdateSettingsRequest,
   UpdateLanguageRequest,
   CalendarListEntry,
@@ -8,15 +7,16 @@ import {
   UpdateCalendarRequest,
 } from "@/types/settings";
 import { useToast } from "@/components/ui/toast-provider";
+import { useSettingsStore } from "@/stores/settingsStore";
+import { useCalendarsStore } from "@/stores/calendarsStore";
 
 export function useSettings() {
-  const [settings, setSettings] = useState<Settings | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { settings, isLoading, error, setSettings, setLoading, setError } =
+    useSettingsStore();
 
   useEffect(() => {
     const fetchSettings = async () => {
-      setIsLoading(true);
+      setLoading(true);
       setError(null);
       try {
         const response = await fetch("/api/settings");
@@ -33,15 +33,15 @@ export function useSettings() {
         setError(errorMessage);
         setSettings(null);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
     fetchSettings();
-  }, []);
+  }, [setSettings, setLoading, setError]);
 
   const refetch = async () => {
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
     try {
       const response = await fetch("/api/settings");
@@ -58,7 +58,7 @@ export function useSettings() {
       setError(errorMessage);
       setSettings(null);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -67,6 +67,7 @@ export function useSettings() {
 
 export function useUpdateSettings() {
   const { showSuccess, showError } = useToast();
+  const { updateSettings: updateStore } = useSettingsStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const updateSettings = async (data: UpdateSettingsRequest) => {
@@ -86,6 +87,8 @@ export function useUpdateSettings() {
         throw new Error(result.error || "Failed to update settings");
       }
 
+      // Update the store with the new settings
+      updateStore(result.settings);
       showSuccess("Settings updated successfully");
       return result.settings;
     } catch (err) {
@@ -103,6 +106,7 @@ export function useUpdateSettings() {
 
 export function useUpdateLanguage() {
   const { showSuccess, showError } = useToast();
+  const { updateSettings: updateStore } = useSettingsStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const updateLanguage = async (data: UpdateLanguageRequest) => {
@@ -122,6 +126,8 @@ export function useUpdateLanguage() {
         throw new Error(result.error || "Failed to update language settings");
       }
 
+      // Update the store with the new settings
+      updateStore(result.settings);
       showSuccess("Language settings updated successfully");
       return result.settings;
     } catch (err) {
@@ -141,6 +147,7 @@ export function useUpdateLanguage() {
 
 export function useUpdateService() {
   const { showSuccess, showError } = useToast();
+  const { updateSettings: updateStore } = useSettingsStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const startService = async () => {
@@ -163,6 +170,8 @@ export function useUpdateService() {
         throw new Error(result.error || "Failed to start service");
       }
 
+      // Update the store with the new settings
+      updateStore(result.settings);
       showSuccess("Service started successfully");
       return result.settings;
     } catch (err) {
@@ -195,6 +204,8 @@ export function useUpdateService() {
         throw new Error(result.error || "Failed to stop service");
       }
 
+      // Update the store with the new settings
+      updateStore(result.settings);
       showSuccess("Service stopped successfully");
       return result.settings;
     } catch (err) {
@@ -211,13 +222,12 @@ export function useUpdateService() {
 }
 
 export function useCalendars() {
-  const [calendars, setCalendars] = useState<CalendarListEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { calendars, isLoading, error, setCalendars, setLoading, setError } =
+    useCalendarsStore();
 
   useEffect(() => {
     const fetchCalendars = async () => {
-      setIsLoading(true);
+      setLoading(true);
       setError(null);
       try {
         const response = await fetch("/api/calendars");
@@ -234,15 +244,15 @@ export function useCalendars() {
         setError(errorMessage);
         setCalendars([]);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
     fetchCalendars();
-  }, []);
+  }, [setCalendars, setLoading, setError]);
 
   const refetch = async () => {
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
     try {
       const response = await fetch("/api/calendars");
@@ -259,19 +269,16 @@ export function useCalendars() {
       setError(errorMessage);
       setCalendars([]);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const addCalendar = async (calendar: CalendarListEntry) => {
-    setCalendars([...calendars, calendar]);
-  };
-
-  return { calendars, isLoading, error, refetch, addCalendar };
+  return { calendars, isLoading, error, refetch };
 }
 
 export function useUpdateCalendar() {
   const { showSuccess, showError } = useToast();
+  const { updateSettings: updateStore } = useSettingsStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const updateCalendar = async (data: UpdateCalendarRequest) => {
@@ -291,6 +298,8 @@ export function useUpdateCalendar() {
         throw new Error(result.error || "Failed to update calendar settings");
       }
 
+      // Update the store with the new settings
+      updateStore(result.settings);
       showSuccess("Calendar settings updated successfully");
       return result.settings;
     } catch (err) {
@@ -310,6 +319,8 @@ export function useUpdateCalendar() {
 
 export function useCreateCalendar() {
   const { showSuccess, showError } = useToast();
+  const { updateSettings: updateStore } = useSettingsStore();
+  const { addCalendar } = useCalendarsStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const createCalendar = async (data: CreateCalendarRequest) => {
@@ -327,6 +338,19 @@ export function useCreateCalendar() {
 
       if (!response.ok) {
         throw new Error(result.error || "Failed to create calendar");
+      }
+
+      // Add the new calendar to the calendars store
+      const newCalendar: CalendarListEntry = {
+        id: result.calendar.id,
+        summary: result.calendar.summary,
+        accessRole: "owner",
+      };
+      addCalendar(newCalendar);
+
+      // Update the settings store if settings were updated
+      if (result.settings) {
+        updateStore(result.settings);
       }
 
       showSuccess("Calendar created successfully");

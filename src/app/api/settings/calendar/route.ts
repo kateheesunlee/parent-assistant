@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     // Update the calendar settings
     const { data, error } = await supabase
       .from("settings")
-      .update({ calendar_id: calendar.id })
+      .update({ calendar_id: calendar.id, calendar_name: calendar.summary })
       .eq("user_id", user.id)
       .select()
       .single();

@@ -48,22 +48,15 @@ const SettingsPage = () => {
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <SettingsCard title="Calendar settings" icon={<Calendar size={20} />}>
-          <CalendarSettings
-            isLoading={isLoading}
-            settingsCalendarId={settings?.calendar_id ?? undefined}
-            settingsCalendarName={settings?.calendar_name ?? undefined}
-          />
+          <CalendarSettings />
         </SettingsCard>
 
         <SettingsCard title="Language preferences" icon={<Globe size={20} />}>
-          <LanguageSetting
-            settingsLanguage={settings?.preferred_language ?? undefined}
-            handleLanguageChange={handleLanguageChange}
-          />
+          <LanguageSetting />
         </SettingsCard>
 
         <SettingsCard title="Service control" icon={<Power size={20} />}>
-          <ServiceControlSetting isLoading={isLoading} />
+          <ServiceControlSetting />
         </SettingsCard>
       </Box>
     </Container>

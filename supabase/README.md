@@ -6,6 +6,7 @@ This directory contains database migrations for the Parent Assistant application
 
 - `migrations/001_create_children_table.sql` - Creates the children table with RLS policies
 - `migrations/002_create_settings_table.sql` - Creates the settings table with RLS policies
+- `migrations/003_create_connections_table.sql` - Creates the connections table for OAuth token storage
 - `DATABASE_SETUP.md` - Detailed setup instructions
 
 ## Quick Start

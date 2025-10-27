@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getGoogleAccessToken } from "@/lib/auth";
 import { UpdateServiceRequest } from "@/types/settings";
 import { Child } from "@/types/children";
 
@@ -27,6 +28,7 @@ async function sendWebhook(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-internal-api-key": process.env.INTERNAL_API_KEY || "",
       },
       body: JSON.stringify({
         event,
@@ -138,8 +140,17 @@ export async function PUT(request: NextRequest) {
         .from("children")
         .select("*")
         .eq("user_id", user.id);
+
+      // Build webhook settings payload
+      const webhookSettings: ServiceSettings = {
+        calendar_id: result.calendar_id || "",
+        calendar_name: result.calendar_name || "",
+        preferred_language: result.preferred_language || "",
+        automation_enabled: result.automation_enabled,
+      };
+
       if (children) {
-        await sendWebhook(event, user.id, result, children);
+        await sendWebhook(event, user.id, webhookSettings, children);
       } else {
         console.error("No children found for user:", user.id);
       }

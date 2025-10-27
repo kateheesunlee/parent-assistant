@@ -5,29 +5,26 @@ import {
   MenuItem,
   SelectChangeEvent,
 } from "@mui/material";
-import { useState } from "react";
+import { useSettings, useUpdateLanguage } from "@/hooks/useSettings";
 
-const LanguageSetting = ({
-  settingsLanguage,
-  handleLanguageChange,
-}: {
-  settingsLanguage?: string;
-  handleLanguageChange: (event: SelectChangeEvent<string>) => void;
-}) => {
-  const [language, setLanguage] = useState<string>(settingsLanguage ?? "en");
+const LanguageSetting = () => {
+  const { settings, isLoading: isSettingsLoading } = useSettings();
+  const { updateLanguage } = useUpdateLanguage();
 
-  const handleLanguageChangeLocal = (event: SelectChangeEvent<string>) => {
-    setLanguage(event.target.value);
-    handleLanguageChange(event);
+  const handleLanguageChange = async (event: SelectChangeEvent<string>) => {
+    await updateLanguage({
+      preferred_language: event.target.value,
+    });
   };
 
   return (
     <FormControl sx={{ width: "100%", maxWidth: 300 }}>
       <FormLabel>Language</FormLabel>
       <Select
-        value={language}
-        onChange={handleLanguageChangeLocal}
+        value={settings?.preferred_language ?? "en"}
+        onChange={handleLanguageChange}
         size="small"
+        disabled={isSettingsLoading}
       >
         <MenuItem value="en">English</MenuItem>
         <MenuItem value="es">Spanish</MenuItem>
